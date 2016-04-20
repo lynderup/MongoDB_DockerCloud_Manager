@@ -32,12 +32,12 @@ var dockerCloudAPICall = function(path, method, data, callback) {
 	});
 
 	res.on('end', () => {
-	    callback(JSON.parse(data), null);
+	    callback(null, JSON.parse(data));
 	});
     });
     
     req.on('error', (e) => {
-	callback(null, e);
+	callback(e);
     });
 
     if (method == 'POST') {
@@ -52,22 +52,22 @@ var Service = function(serviceJson) {
     var uuid = serviceJson.uuid;
 
     this.start = function(callback) {
-	dockerCloudAPICall("/api/app/v1/service/" + uuid + "/start/", 'POST', null, (res, err) => {
+	dockerCloudAPICall("/api/app/v1/service/" + uuid + "/start/", 'POST', null, (err, res) => {
 	    if (err != null) {
-		callback(null, err);
+		callback(err);
 		return;
 	    }
-	    callback(new Service(res), null);
+	    callback(null, new Service(res));
 	});
     }
 
     this.stop = function(callback) {
-	dockerCloudAPICall("/api/app/v1/service/" + uuid + "/start/", 'POST', null, (res, err) => {
+	dockerCloudAPICall("/api/app/v1/service/" + uuid + "/start/", 'POST', null, (err, res) => {
 	    if (err != null) {
-		callback(null, err);
+		callback(err);
 		return;
 	    }
-	    callback(new Service(res), null);
+	    callback(null, new Service(res));
 	});
     }
 }
@@ -85,17 +85,17 @@ exports.createService = function(options, callback) {
     if (options['image'] == null ||
 	options['name'] == null ||
 	options['target_num_containers'] == null) {
-	callback(null, "You need at least to supply image, name and target_num_containers" )
+	callback("You need at least to supply image, name and target_num_containers" )
 	return;
     }
     
-    dockerCloudAPICall("/api/app/v1/service/", 'POST', options, (res, err) => {
+    dockerCloudAPICall("/api/app/v1/service/", 'POST', options, (err, res) => {
 	if (err != null) {
-	    callback(null, err);
+	    callback(err);
 	    return;
 	}
 
-	callback(new Service(res), null);
+	callback(null, new Service(res));
 	
     });
 }
