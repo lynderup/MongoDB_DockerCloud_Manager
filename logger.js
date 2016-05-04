@@ -5,4 +5,4 @@ var Logger = function (file) {
     };
 };
 
-exports.Logger = Logger;
+module.exports = exports = Logger;
