@@ -51,6 +51,10 @@ var dockerCloudAPICall = function(path, method, data, callback) {
 var Service = function(serviceJson) {
     var uuid = serviceJson.uuid;
 
+    this.toString = function() {
+        return JSON.stringify(serviceJson, null, 2);
+    }
+
     this.start = function(callback) {
 	dockerCloudAPICall("/api/app/v1/service/" + uuid + "/start/", 'POST', null, (err, res) => {
 	    if (err != null) {
@@ -70,8 +74,36 @@ var Service = function(serviceJson) {
 	    callback(null, new Service(res));
 	});
     }
+    this.getContainers = function(callback) {
+        var containerURIs = serviceJson.containers;
+        
+        var visit = function(conUris, containers) {
+            var containerURI = conUris.pop();
+            if (!containerURI) {
+                callback(null, containers);
+                return;
+            }
+            
+            dockerCloudAPICall(containerURI, 'GET', (err, res) => {
+                if (err != null) {
+		    callback(err);
+		    return;
+	        }
+                containers.push(new Container(res));
+                visit(conUris, containers);
+            })
+        }
+        visit(containerURIs, []);
+    }
 }
 
+
+var Container = function(containerJson) {
+
+    this.toString = function() {
+        return JSON.stringify(containerJson, null, 2);
+    }
+}
 
 exports.listNodes = function(callback) {
     dockerCloudAPICall("/api/infra/v1/node/", 'GET', null, callback);

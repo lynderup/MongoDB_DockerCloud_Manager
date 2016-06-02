@@ -12,6 +12,7 @@ var dbManager = new MongoDBManager({
 
 dbManager.deployConfigServers((err, set) => {
     logger.log(err);
-    logger.log(set);
+    //logger.log(set);
+    
 });
 

@@ -15,7 +15,6 @@ var MongoDBInstanceManager_DockerCloud = function() {
 		    callback(err);
 		    return;
 	        }
-	        console.log(service);
 	        callback(null, service);
 	    });
         });
@@ -36,7 +35,16 @@ var MongoDBInstanceManager_DockerCloud = function() {
 	    }]
         };
 
-        deployService(options, callback);
+        deployService(options, (err, service) => {
+            if (err) {callback(err); return;}
+
+            service.getContainers((err, containers) => {
+                if (err) {callback(err); return;}
+                
+                console.log(containers[0]);
+                callback(null, containers);
+            })
+        });
 
     }
 
