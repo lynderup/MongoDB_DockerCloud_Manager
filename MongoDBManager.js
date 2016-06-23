@@ -1,10 +1,14 @@
 
+var Logger = require('./Logger');
+
+var logger = new Logger("MongoDBManager");
+
 
 var MongoDBManager = function (options) {
     var mongoDBInstanceManager = options.mongoDBInstanceManager;
 
 
-    this.deployConfigServers = function(callback) {
+    var deployConfigServers = function(callback) {
 
         var command = "mongod --configsvr --dbpath /data/db --port 27017";
 
@@ -14,7 +18,7 @@ var MongoDBManager = function (options) {
 
     }
 
-    this.deployMongosServer = function(callback) {
+    var deployMongosServer = function(callback) {
         var configHostsStr = ""
         
         for(var i = 0; i < configHosts.length; i++) {

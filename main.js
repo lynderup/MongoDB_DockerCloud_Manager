@@ -4,15 +4,8 @@ var Logger = require('./Logger');
 
 var logger = new Logger("main");
 
+var mongoDBInstanceManager = new MongoDBInstanceManager_DockerCloud();
 
 var dbManager = new MongoDBManager({
-    mongoDBInstanceManager: new MongoDBInstanceManager_DockerCloud()
+    mongoDBInstanceManager: mongoDBInstanceManager
 });
-
-
-dbManager.deployConfigServers((err, set) => {
-    logger.log(err);
-    //logger.log(set);
-    
-});
-

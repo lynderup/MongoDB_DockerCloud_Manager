@@ -1,7 +1,11 @@
 var https = require('https');
 
+
+
+// Sends a http request to the docker cloud 
+
 var dockerCloudAPICall = function(path, method, data, callback) {
-    var apikey = new Buffer("lynderup:19325cdc-d24f-47c3-a12b-85e4eaa8f358").toString('base64');
+    var apikey = new Buffer("lynderup:3d936ed4-b65e-4fe3-8643-be799838a9f5").toString('base64');
 
     var headers = {
 	    Authorization: 'Basic ' + apikey,
@@ -47,33 +51,32 @@ var dockerCloudAPICall = function(path, method, data, callback) {
     req.end();
 }
 
-
+// Constructor to make a service object from the json object returned from docker cloud
 var Service = function(serviceJson) {
     var uuid = serviceJson.uuid;
 
+    // returns json representation of the service
     this.toString = function() {
         return JSON.stringify(serviceJson, null, 2);
     }
 
+    // sends a start request for the service to docker cloud
     this.start = function(callback) {
 	dockerCloudAPICall("/api/app/v1/service/" + uuid + "/start/", 'POST', null, (err, res) => {
-	    if (err != null) {
-		callback(err);
-		return;
-	    }
+	    if (err) {callback(err); return;}
 	    callback(null, new Service(res));
 	});
     }
 
+    // sends a stop request for the service to docker cloud
     this.stop = function(callback) {
 	dockerCloudAPICall("/api/app/v1/service/" + uuid + "/start/", 'POST', null, (err, res) => {
-	    if (err != null) {
-		callback(err);
-		return;
-	    }
+	    if (err) {callback(err); return;}
 	    callback(null, new Service(res));
 	});
     }
+    
+    // Returns a list of the containers belonging to this service
     this.getContainers = function(callback) {
         var containerURIs = serviceJson.containers;
         
@@ -85,10 +88,7 @@ var Service = function(serviceJson) {
             }
             
             dockerCloudAPICall(containerURI, 'GET', (err, res) => {
-                if (err != null) {
-		    callback(err);
-		    return;
-	        }
+                if (err) {callback(err); return;}
                 containers.push(new Container(res));
                 visit(conUris, containers);
             })
@@ -97,22 +97,31 @@ var Service = function(serviceJson) {
     }
 }
 
-
+// Constructor to make a container object from the json object returned from docker cloud
 var Container = function(containerJson) {
 
+    for (var k in containerJson) {
+        this[k] = containerJson[k];
+    }
+    
+    // returns json representation of the container
     this.toString = function() {
         return JSON.stringify(containerJson, null, 2);
     }
 }
 
+
+// API call to get list of nodes
 exports.listNodes = function(callback) {
     dockerCloudAPICall("/api/infra/v1/node/", 'GET', null, callback);
 }
 
+// API call to get list of services
 exports.listServices = function(callback) {
     dockerCloudAPICall("/api/app/v1/service/", 'GET', null, callback);
 }
 
+// API call to create a service and returns a object representing it
 exports.createService = function(options, callback) {
     if (options['image'] == null ||
 	options['name'] == null ||
@@ -122,16 +131,20 @@ exports.createService = function(options, callback) {
     }
     
     dockerCloudAPICall("/api/app/v1/service/", 'POST', options, (err, res) => {
-	if (err != null) {
-	    callback(err);
-	    return;
-	}
-
+	if (err) {callback(err); return;}
 	callback(null, new Service(res));
-	
     });
 }
 
+// API call to get list of containers
 exports.listContainers = function(callback) {
-    dockerCloudAPICall("/api/app/v1/container/", 'GET', null, callback);
+    dockerCloudAPICall("/api/app/v1/container/", 'GET', null, (err, res) => {
+        if (err) {callback(err); return;}
+        
+        var containers = [];
+        for (var i = 0; i < res.objects.length; ++i) {
+            containers.push(new Container(res.objects[i]));
+        }
+        callback(null, containers);
+    });
 }
