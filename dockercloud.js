@@ -55,6 +55,11 @@ var dockerCloudAPICall = function(path, method, data, callback) {
 var Service = function(serviceJson) {
     var uuid = serviceJson.uuid;
 
+    // Copy all elements
+    for (var k in serviceJson) {
+        this[k] = serviceJson[k];
+    }
+
     // returns json representation of the service
     this.toString = function() {
         return JSON.stringify(serviceJson, null, 2);
@@ -87,7 +92,7 @@ var Service = function(serviceJson) {
                 return;
             }
             
-            dockerCloudAPICall(containerURI, 'GET', (err, res) => {
+            dockerCloudAPICall(containerURI, 'GET', null, (err, res) => {
                 if (err) {callback(err); return;}
                 containers.push(new Container(res));
                 visit(conUris, containers);
@@ -119,6 +124,14 @@ exports.listNodes = function(callback) {
 // API call to get list of services
 exports.listServices = function(callback) {
     dockerCloudAPICall("/api/app/v1/service/", 'GET', null, callback);
+}
+
+// API call to get a service from an uuid
+exports.getService = function(uuid, callback) {
+    dockerCloudAPICall("/api/app/v1/service/" + uuid + "/", 'GET', null, (err, res) => {
+	if (err) {callback(err); return;}
+	callback(null, new Service(res));
+    });
 }
 
 // API call to create a service and returns a object representing it

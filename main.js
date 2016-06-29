@@ -9,3 +9,5 @@ var mongoDBInstanceManager = new MongoDBInstanceManager_DockerCloud();
 var dbManager = new MongoDBManager({
     mongoDBInstanceManager: mongoDBInstanceManager
 });
+
+dbManager.start()
