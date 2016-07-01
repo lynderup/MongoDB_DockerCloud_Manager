@@ -35,6 +35,7 @@ var MongoDBInstanceManager_DockerCloud = function() {
         });
     }
 
+    // Invokes callback when the service is running, timeout after 25 sec.
     var waitOnService = function(service, callback) {
         var visit = function(count, service) {
             if(count == 5) {
@@ -50,7 +51,7 @@ var MongoDBInstanceManager_DockerCloud = function() {
                         if (err) {callback(err); return;}
                         visit(++count, service);
                     });
-                }, 1000);
+                }, 5000);
             } else {
                 callback("service is not starting");
             }

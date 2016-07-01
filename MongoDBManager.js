@@ -55,7 +55,7 @@ var MongoDBManager = function (options) {
                  "," + configInstances[2].host + ":" + configInstances[2].port
 
              console.log("Starting mongos server");
-             mongoDBInstanceManager.deployMongosInstance("Mongos", command, (err, mongos) => {
+             mongoDBInstanceManager.deployMongosInstance("mongos", command, (err, mongos) => {
                  if (err) {callback(err); return;}
 
                  console.log("Started mongos server");
