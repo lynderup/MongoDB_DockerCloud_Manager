@@ -4,6 +4,7 @@
   "description": "",
   "main": "main.js",
   "dependencies": {
+    "mongodb": "^2.1.18",
     "node-gyp": "^3.3.1",
     "websocket": "^1.0.22"
   },
